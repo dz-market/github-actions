@@ -1,4 +1,4 @@
-name: Docker Release
+name: Docker Publish
 
 on:
     workflow_call:
@@ -7,10 +7,12 @@ on:
                 description: Dockerfile stage to build
                 type: string
                 required: true
+
             suffix:
                 description: Suffix appended to the image name
                 type: string
                 default: ""
+
             platforms:
                 type: string
                 default: linux/amd64
@@ -24,8 +26,15 @@ jobs:
         name: Publish ${{ inputs.target }}
         runs-on: ubuntu-latest
         timeout-minutes: 20
+
         steps:
             -   uses: actions/checkout@v7
+
+            -   id: meta
+                uses: docker/metadata-action@v6
+                with:
+                    images: ghcr.io/${{ github.repository }}${{ inputs.suffix }}
+                    tags: type=semver,pattern={{version}}
 
             -   uses: docker/setup-buildx-action@v4
 
@@ -35,16 +44,8 @@ jobs:
                     username: ${{ github.actor }}
                     password: ${{ secrets.GITHUB_TOKEN }}
 
-            -   id: meta
-                uses: docker/metadata-action@v6
-                with:
-                    images: ghcr.io/${{ github.repository }}${{ inputs.suffix }}
-                    tags: |
-                        type=semver,pattern={{version}}
-                        type=semver,pattern={{major}}.{{minor}}
-                        type=sha,format=short
-
-            -   uses: docker/build-push-action@v7
+            -   id: build
+                uses: docker/build-push-action@v7
                 with:
                     context: .
                     target: ${{ inputs.target }}

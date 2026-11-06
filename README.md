@@ -15,5 +15,6 @@ Shared Github Actions and reusable CI/CD workflows.
 | Workflow | Purpose |
 | --- | --- |
 | [go-ci](.github/workflows/go-ci.yml) | Lint, module checks, build, race tests, coverage upload and vulnerability checks |
-| [docker-release](.github/workflows/docker-release.yml) | Build and publish Docker targets to GHCR |
+| [docker-build](.github/workflows/docker-build.yml) | Build a Docker target without publishing|
+| [docker-publish](.github/workflows/docker-publish.yml) | Build and publish a Docker target to GHCR|
 | [dependabot-auto-merge](.github/workflows/dependabot-auto-merge.yml) | Enabled squash auto-merge for Dependabot patch updates |
