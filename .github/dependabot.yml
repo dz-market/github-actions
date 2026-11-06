@@ -1,0 +1,20 @@
+version: 2
+
+updates:
+    -   package-ecosystem: github-actions
+        directory: /
+        schedule:
+            interval: weekly
+
+        groups:
+            actions-patch:
+                patterns: ["*"]
+                update-types: ["patch"]
+
+            actions-minor:
+                patterns: ["*"]
+                update-types: ["minor"]
+
+        commit-message:
+            prefix: ci
+            include: scope
