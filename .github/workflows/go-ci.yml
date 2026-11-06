@@ -1,0 +1,61 @@
+name: Go CI
+
+on:
+    workflow_call:
+
+permissions:
+    contents: read
+    id-token: write
+
+jobs:
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
+            -   uses: actions/checkout@v7
+
+            -   uses: actions/setup-go@v7
+                with:
+                    go-version-file: go.mod
+                    cache: false
+
+            -   uses: golangci/golangci-lint-action@v9
+                with:
+                    version: v2.14
+
+    test:
+        name: Build and test
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
+            -   uses: actions/checkout@v7
+
+            -   uses: actions/setup-go@v7
+                with:
+                    go-version-file: go.mod
+
+            -   name: Check go.mod tidiness
+                run: go mod tidy -diff
+
+            -   name: Build
+                run: go build ./...
+
+            -   name: Run tests with coverage
+                run: go test -race -count=1 -coverprofile=coverage.out ./...
+
+            -   name: Upload coverage
+                uses: codecov/codecov-action@v7
+                with:
+                    files: ./coverage.out
+                    use_oidc: true
+
+    vulncheck:
+        name: Vulncheck
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
+            -   uses: golang/govulncheck-action@v1
+                with:
+                    go-version-input: ""
+                    go-version-file: go.mod
