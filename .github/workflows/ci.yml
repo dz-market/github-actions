@@ -1,0 +1,29 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    lint:
+        name: Workflow lint
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+
+        steps:
+            -   uses: actions/checkout@v7
+
+            -   name: Check workflows
+                uses: docker://rhysd/actionlint:latest
+                with:
+                    args: -color
