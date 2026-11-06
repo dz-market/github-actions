@@ -1,0 +1,31 @@
+name: Release
+
+on:
+    push:
+        tags: ["v*.*.*"]
+
+permissions:
+    contents: write
+
+concurrency:
+    group: major-version-tags
+    cancel-in-progress: false
+
+jobs:
+    update:
+        name: Update major tag
+        if: ${{ !github.event.deleted }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+
+        steps:
+            -   uses: actions/checkout@v7
+
+            -   name: Update major tag
+                shell: bash
+                env:
+                    RELEASE_TAG: ${{ github.ref_name }}
+                run: |
+                    major="${RELEASE_TAG%%.*}"
+                    git tag -f "$major" HEAD
+                    git push origin "$major" --force
