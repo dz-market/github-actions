@@ -3,10 +3,20 @@ name: Docker Publish
 on:
     workflow_call:
         inputs:
+            file:
+                description: Path to Dockerfile
+                type: string
+                default: Dockerfile
+
             target:
                 description: Dockerfile stage to build
                 type: string
                 required: true
+
+            image:
+                description: Full image name override
+                type: string
+                default: ""
 
             suffix:
                 description: Suffix appended to the image name
@@ -33,7 +43,7 @@ jobs:
             -   id: meta
                 uses: docker/metadata-action@v6
                 with:
-                    images: ghcr.io/${{ github.repository }}${{ inputs.suffix }}
+                    images: ${{ inputs.image || format('ghcr.io/{0}{1}', github.repository, inputs.suffix) }}
                     tags: type=semver,pattern={{version}}
 
             -   uses: docker/setup-buildx-action@v4
@@ -48,6 +58,7 @@ jobs:
                 uses: docker/build-push-action@v7
                 with:
                     context: .
+                    file: ${{ inputs.file }}
                     target: ${{ inputs.target }}
                     platforms: ${{ inputs.platforms }}
                     push: true
