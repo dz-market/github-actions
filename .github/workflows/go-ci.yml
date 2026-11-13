@@ -3,6 +3,11 @@ name: Go CI
 on:
     workflow_call:
         inputs:
+            working-directory:
+                description: Go module directory
+                type: string
+                default: "."
+
             golangci-lint-version:
                 description: Version of golangci-lint
                 type: string
@@ -28,24 +33,29 @@ jobs:
 
             -   uses: actions/setup-go@v7
                 with:
-                    go-version-file: go.mod
+                    go-version-file: ${{ inputs.working-directory }}/go.mod
                     cache: false
 
             -   uses: golangci/golangci-lint-action@v9
                 with:
                     version: ${{ inputs.golangci-lint-version }}
+                    working-directory: ${{ inputs.working-directory }}
 
     test:
         name: Build and test
         runs-on: ubuntu-latest
         timeout-minutes: 10
 
+        defaults:
+            run:
+                working-directory: ${{ inputs.working-directory }}
+
         steps:
             -   uses: actions/checkout@v7
 
             -   uses: actions/setup-go@v7
                 with:
-                    go-version-file: go.mod
+                    go-version-file: ${{ inputs.working-directory }}/go.mod
 
             -   name: Check go.mod tidiness
                 run: go mod tidy -diff
@@ -60,7 +70,7 @@ jobs:
                 if: inputs.coverage-upload
                 uses: codecov/codecov-action@v7
                 with:
-                    files: ./coverage.out
+                    files: ${{ inputs.working-directory }}/coverage.out
                     use_oidc: true
 
     vulncheck:
@@ -72,4 +82,5 @@ jobs:
             -   uses: golang/govulncheck-action@v1
                 with:
                     go-version-input: ""
-                    go-version-file: go.mod
+                    go-version-file: ${{ inputs.working-directory }}/go.mod
+                    work-dir: ${{ inputs.working-directory }}
