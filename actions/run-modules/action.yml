@@ -1,0 +1,36 @@
+name: Run modules
+description: Run a command in each Go module directory
+
+inputs:
+    modules:
+        description: Go module directories
+        required: false
+        default: "."
+
+    command:
+        description: Shell command to run in each module
+        required: true
+
+runs:
+    using: composite
+    steps:
+        -   name: Run command across modules
+            shell: bash
+            env:
+                MODULES: ${{ inputs.modules }}
+                COMMAND: ${{ inputs.command }}
+            run: |
+                status=0
+
+                while IFS= read -r module; do
+                    [[ -z "$module" ]] && continue
+
+                    echo "::group::$module: $COMMAND"
+                    (
+                        cd "$module" && 
+                        bash -e -o pipefail -c "$COMMAND"
+                    ) || status=1
+                    echo "::endgroup::"
+                done <<< "$MODULES"
+
+                exit "$status"
