@@ -8,6 +8,11 @@ on:
                 type: string
                 default: "."
 
+            test-tags:
+                description: Build tags for tests
+                type: string
+                default: ""
+
             golangci-lint-version:
                 description: Version of golangci-lint
                 type: string
@@ -76,7 +81,7 @@ jobs:
                 uses: dz-market/github-actions/actions/run-modules@v1
                 with:
                     modules: ${{ inputs.modules }}
-                    command: go test -race -count=1 -coverprofile=coverage.out ./...
+                    command: go test -race -count=1 -tags="${{ inputs.test-tags }}" -timeout=3m -coverprofile=coverage.out ./...
 
             -   name: Upload coverage
                 if: ${{ inputs.coverage-upload }}
