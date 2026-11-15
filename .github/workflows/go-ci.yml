@@ -4,7 +4,7 @@ on:
     workflow_call:
         inputs:
             modules:
-                description: Go module directories
+                description: Newline-separated Go module directories, or auto to discover modules
                 type: string
                 default: "."
 

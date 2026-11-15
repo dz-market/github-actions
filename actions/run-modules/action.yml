@@ -3,7 +3,7 @@ description: Run a command in each Go module directory
 
 inputs:
     modules:
-        description: Go module directories
+        description: Newline-separated Go module directories, or auto to discover modules
         required: false
         default: "."
 
@@ -19,18 +19,4 @@ runs:
             env:
                 MODULES: ${{ inputs.modules }}
                 COMMAND: ${{ inputs.command }}
-            run: |
-                status=0
-
-                while IFS= read -r module; do
-                    [[ -z "$module" ]] && continue
-
-                    echo "::group::$module: $COMMAND"
-                    (
-                        cd "$module" && 
-                        bash -e -o pipefail -c "$COMMAND"
-                    ) || status=1
-                    echo "::endgroup::"
-                done <<< "$MODULES"
-
-                exit "$status"
+            run: bash "${{ github.action_path }}/run.sh"
