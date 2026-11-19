@@ -13,6 +13,11 @@ on:
                 type: string
                 required: true
 
+            build-args:
+                description: Docker build arguments
+                type: string
+                default: ""
+
             image:
                 description: Full image name override
                 type: string
@@ -60,6 +65,7 @@ jobs:
                     context: .
                     file: ${{ inputs.file }}
                     target: ${{ inputs.target }}
+                    build-args: ${{ inputs.build-args }}
                     platforms: ${{ inputs.platforms }}
                     push: true
                     tags: ${{ steps.meta.outputs.tags }}
